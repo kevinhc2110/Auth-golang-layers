@@ -1,20 +1,30 @@
 package controllers
 
+import (
+	"FonincoBackend/internal/server/models"
+	"FonincoBackend/internal/server/repositories"
+	"FonincoBackend/internal/server/services"
+	"log"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
+
 // Estructura que contiene los servicios y repositorios necesarios
 type AuthController struct {
-	AuthService services.AuthService
-	UserRepo 	repositories.UserRepository
+	AuthService *services.AuthService
+	UserRepo    repositories.AuthRepository
 }
 
 // Constructor que inicializa un nuevo AuthController
-func NewAuthController(authService services.AuthService, userRepo repositories.UserRepository) *AuthController {
+func NewAuthController(authService *services.AuthService, userRepo repositories.AuthRepository) *AuthController {
 	return &AuthController{
 		AuthService: authService,
-		UserRepo: userRepo,
+		UserRepo:    userRepo,
 	}
 }
 
-// Login 
+// Login
 func (ac *AuthController) Login(c *gin.Context) {
 	var credentials models.LoginRequest
 
@@ -22,19 +32,21 @@ func (ac *AuthController) Login(c *gin.Context) {
 	if err := c.ShouldBindJSON(&credentials); err != nil {
 
 		// Si el JSON no es válido o está incompleto, responde con un error 400 (Bad Request)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		log.Printf("Usuario no encontrado: %v", credentials.UserID)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Entrada invalida"})
 		return
 	}
 
 	// Intenta autenticar al usuario con las credenciales proporcionadas
-	token, err := ac.AuthService.Login(credentials.Id, credentials.Password)
+	token, err := ac.AuthService.LoginUser(credentials.UserID, credentials.Password)
 	if err != nil {
+		log.Printf("Error de autenticación para usuario %s: %v", credentials.UserID, err)
 
 		// Si la autenticación falla, responde con un error 401 (Unauthorized)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciales invalidas"})
 		return
 	}
-	
+
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
@@ -51,7 +63,7 @@ func (ac *AuthController) ChangePassword(c *gin.Context) {
 	}
 
 	// Intenta cambiar la contraseña del usuario
-	if err := ac.AuthService.ChangePassword(ChangePasswordRequest.UserId, ChangePasswordRequest.OldPassword, ChangePasswordRequest.NewPassword); err != nil {
+	if err := ac.AuthService.ChangePassword(ChangePasswordRequest.UserID, ChangePasswordRequest.OldPassword, ChangePasswordRequest.NewPassword); err != nil {
 
 		// Si la contraseña no se puede cambiar, responde con un error 400 (Bad Request)
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})

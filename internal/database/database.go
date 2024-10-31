@@ -25,7 +25,7 @@ func LoadEnv() {
 }
 
 // Inicializa la conexión a la base de datos
-func initDB() {
+func InitDB() {
 
 	LoadEnv()
 

@@ -14,7 +14,7 @@ func TestMain(m *testing.M) {
 
 	LoadEnv()
 
-	initDB()
+	InitDB()
 
 	// Ejecuta las pruebas
 	code := m.Run()
