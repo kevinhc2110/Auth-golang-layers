@@ -43,7 +43,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 		log.Printf("Error de autenticación para usuario %s: %v", credentials.UserID, err)
 
 		// Si la autenticación falla, responde con un error 401 (Unauthorized)
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Credenciales invalidas"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -58,7 +58,7 @@ func (ac *AuthController) ChangePassword(c *gin.Context) {
 	if err := c.ShouldBindJSON(&ChangePasswordRequest); err != nil {
 
 		// Si el JSON no es válido o está incompleto, responde con un error 400 (Bad Request)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Entrada invalida"})
 		return
 	}
 
@@ -66,7 +66,7 @@ func (ac *AuthController) ChangePassword(c *gin.Context) {
 	if err := ac.AuthService.ChangePassword(ChangePasswordRequest.UserID, ChangePasswordRequest.OldPassword, ChangePasswordRequest.NewPassword); err != nil {
 
 		// Si la contraseña no se puede cambiar, responde con un error 400 (Bad Request)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid input"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 

@@ -3,8 +3,8 @@ package services
 import (
 	"FonincoBackend/internal/server/repositories"
 	"errors"
-	"fmt"
 	"os"
+	"regexp"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
@@ -13,6 +13,21 @@ import (
 
 type AuthService struct {
 	UserRepo repositories.AuthRepository
+}
+
+func isValidPassword(password string) bool {
+	if len(password) < 8 {
+		return false
+	}
+
+	// Verifica al menos una mayúscula
+	hasUppercase := regexp.MustCompile(`[A-Z]`).MatchString(password)
+	// Verifica al menos un número
+	hasNumber := regexp.MustCompile(`\d`).MatchString(password)
+	// Verifica al menos un carácter especial
+	hasSpecialChar := regexp.MustCompile(`[@$!%*?&]`).MatchString(password)
+
+	return hasUppercase && hasNumber && hasSpecialChar
 }
 
 // Verifica la cedula y contraseña del usuario
@@ -45,7 +60,6 @@ func (as *AuthService) LoginUser(userID string, password string) (string, error)
 		return "", err
 	}
 
-	fmt.Println("Token generado:", tokenString)
 	return tokenString, nil
 }
 
@@ -59,6 +73,11 @@ func (as *AuthService) ChangePassword(userID string, oldPassword, newPassword st
 	// Verifica que la contraseña antigua coincida
 	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(oldPassword)); err != nil {
 		return errors.New("contraseña antigua incorrecta")
+	}
+
+	// Valida el nuevo formato de la contraseña
+	if !isValidPassword(newPassword) {
+		return errors.New("la nueva contraseña debe tener al menos una letra mayúscula, un número, un carácter especial y al menos 8 caracteres")
 	}
 
 	// Genera el hash para la nueva contraseña

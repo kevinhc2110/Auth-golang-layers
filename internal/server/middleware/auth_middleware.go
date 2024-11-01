@@ -12,13 +12,13 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// Clave secreta para firmar el token
-var secretKey = os.Getenv("JWT_SECRET_KEY")
-
 // Middleware para validar el token JWT
 func AuthMiddleware() gin.HandlerFunc {
+
+	// Clave secreta para firmar el token
+	var secretKey = os.Getenv("JWT_SECRET_KEY")
+
 	return func(c *gin.Context) {
-		fmt.Println("Clave secreta leída del entorno:", secretKey)
 		// Obtener el token de las cabeceras de la solicitud
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
@@ -46,7 +46,6 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		if err != nil {
 			fmt.Println("Error al parsear el token:", err)
-			fmt.Println("Clave secreta utilizada para verificar:", secretKey)
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Token invalido", "details": err.Error()})
 			c.Abort()
 			return
@@ -62,7 +61,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		// Extraer el ID de usuario (o cualquier otro campo) del token
 		claims, ok := token.Claims.(jwt.MapClaims)
 		if !ok || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token claims"})
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "Claims del token inválidos"})
 			c.Abort()
 			return
 		}

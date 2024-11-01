@@ -2,6 +2,7 @@ package database
 
 import (
 	"context"
+	"log"
 	"os"
 	"testing"
 
@@ -11,10 +12,12 @@ import (
 // m *testing.M es un puntero a un objeto M del paquete testing, que proporciona métodos para ejecutar las pruebas y obtener el código de salida.
 // testing.M se utiliza para controlar la ejecución de todas las pruebas dentro de un paquete. Se utiliza en la función TestMain(m *testing.M).
 func TestMain(m *testing.M) {
+	// Configura la variable de entorno para las pruebas
+	os.Setenv("DATABASE_URL", "postgres://user:password@localhost:5432/database_name?sslmode=disable")
 
-	LoadEnv()
-
-	InitDB()
+	if err := InitDB(); err != nil {
+		log.Fatalf("Error al inicializar la base de datos: %v", err)
+	}
 
 	// Ejecuta las pruebas
 	code := m.Run()

@@ -1,6 +1,7 @@
 package server
 
 import (
+	"FonincoBackend/internal/config"
 	"FonincoBackend/internal/database"
 	"FonincoBackend/internal/server/controllers"
 	"FonincoBackend/internal/server/repositories"
@@ -9,20 +10,25 @@ import (
 	"os"
 
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 )
 
 // Inicializa y arranca el servidor
 func InitServer() {
 
-	if err := godotenv.Load(); err != nil {
-		log.Printf("Error al cargar el archivo .env: %v", err)
+	// Cargar configuraciones del entorno
+	if err := config.LoadEnv(); err != nil {
+		log.Fatalf("Error al cargar las variables de entorno: %v", err)
 	}
 
 	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // Puerto por defecto
+	}
 
 	// Inicializa la base de datos
-	database.InitDB()
+	if err := database.InitDB(); err != nil {
+		log.Fatalf("Error al inicializar la base de datos: %v", err)
+	}
 	defer database.CloseDB() // Asegúrate de cerrar la conexión al final
 
 	router := gin.Default()

@@ -29,7 +29,6 @@ func NewAuthRepository(pool *pgxpool.Pool) AuthRepository {
 func (r *authRepository) FindUserByID(userID string) (*models.LoginRequest, error) {
 	var user models.LoginRequest
 	query := `SELECT user_id, password FROM users WHERE user_id = $1`
-	log.Println("Buscando usuario con user_id:", userID)
 	err := r.pool.QueryRow(context.Background(), query, userID).Scan(&user.UserID, &user.Password)
 
 	if err != nil {
