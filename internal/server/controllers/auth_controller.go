@@ -33,7 +33,7 @@ func (ac *AuthController) Login(c *gin.Context) {
 
 		// Si el JSON no es válido o está incompleto, responde con un error 400 (Bad Request)
 		log.Printf("Usuario no encontrado: %v", credentials.UserID)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Entrada invalida"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Entrada no valida"})
 		return
 	}
 
@@ -58,7 +58,7 @@ func (ac *AuthController) ChangePassword(c *gin.Context) {
 	if err := c.ShouldBindJSON(&ChangePasswordRequest); err != nil {
 
 		// Si el JSON no es válido o está incompleto, responde con un error 400 (Bad Request)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Entrada invalida"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Entrada no valida"})
 		return
 	}
 

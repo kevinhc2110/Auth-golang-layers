@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"FonincoBackend/internal/database"
 	"FonincoBackend/internal/server/models"
 	"context"
 	"database/sql"
@@ -21,8 +22,12 @@ type authRepository struct {
 }
 
 // NewAuthRepository crea una nueva instancia de AuthRepository
-func NewAuthRepository(pool *pgxpool.Pool) AuthRepository {
-	return &authRepository{pool: pool}
+func NewAuthRepository(pool database.DBPool) AuthRepository {
+	pgxPool, ok := pool.(*pgxpool.Pool)
+	if !ok {
+		log.Fatal("Error: El pool no es un *pgxpool.Pool")
+	}
+	return &authRepository{pool: pgxPool}
 }
 
 // FindUserByID busca un usuario por su ID
